@@ -24,7 +24,7 @@
     {% if expositores %}
         <ul class="expositor-list">
             {% for expositor in expositores %}
-                <li>{{ expositor.nome }}</li>
+            	<li><a href="{% url 'detalhes_expositor' expositor.id %}">{{ expositor.nome }}</a></li>
             {% endfor %}
         </ul>
     {% else %}

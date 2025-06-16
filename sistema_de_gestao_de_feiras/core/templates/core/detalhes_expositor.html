@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes de {{ expositor.nome }}</title>
+    <style>
+        body { font-family: sans-serif; padding: 2em; max-width: 800px; margin: auto; }
+        .produto-card { border: 1px solid #ddd; padding: 1em; margin-bottom: 1em; border-radius: 8px; }
+        .produto-card h3 { margin-top: 0; }
+        .preco { font-weight: bold; color: green; }
+    </style>
+</head>
+<body>
+    <a href="javascript:history.back()">< Voltar</a>
+    <hr>
+    
+    <h1>{{ expositor.nome }}</h1>
+    <p><strong>Contato:</strong> {{ expositor.contato }}</p>
+    <p><strong>Sobre:</strong> {{ expositor.descricao }}</p>
+
+    <hr>
+
+    <h2>Produtos Oferecidos</h2>
+    {% if produtos %}
+        {% for produto in produtos %}
+            <div class="produto-card">
+                <h3>{{ produto.nome }}</h3>
+                <p>{{ produto.descricao }}</p>
+                <p class="preco">Preço: R$ {{ produto.preco|floatformat:2 }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Este expositor ainda não cadastrou produtos.</p>
+    {% endif %}
+
+</body>
+</html>
