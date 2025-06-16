@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ feira.nome }}</title>
+    <style>
+         body { font-family: sans-serif; padding: 2em; }
+        .expositor-list { list-style-type: none; padding: 0; }
+        .expositor-list li { background-color: #f4f4f4; margin-bottom: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <a href="{% url 'inicio' %}">< Voltar para a lista de feiras</a>
+    <hr>
+
+    <h1>{{ feira.nome }}</h1>
+    <p><strong>Local:</strong> {{ feira.localidade }}</p>
+    <p><strong>Data:</strong> {{ feira.data_inicio|date:"d/m/Y" }} a {{ feira.data_fim|date:"d/m/Y" }}</p>
+    <p><strong>Descrição:</strong> {{ feira.descricao }}</p>
+
+    <hr>
+
+    <h2>Expositores nesta Feira</h2>
+    {% if expositores %}
+        <ul class="expositor-list">
+            {% for expositor in expositores %}
+                <li>{{ expositor.nome }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Ainda não há expositores confirmados para esta feira.</p>
+    {% endif %}
+
+</body>
+</html>

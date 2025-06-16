@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Feiras Disponíveis</title>
+    <style>
+        body { font-family: sans-serif; padding: 2em; }
+        .feira-card { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; border-radius: 8px; }
+        .feira-card h2 a { text-decoration: none; color: #092E20; }
+    </style>
+</head>
+<body>
+    <h1>Próximas Feiras</h1>
+    <p>Veja os eventos disponíveis na plataforma.</p>
+    <hr>
+
+    {% if feiras %}
+        {% for feira in feiras %}
+            <div class="feira-card">
+                <h2>
+                    <a href="{% url 'detalhes_feira' feira.id %}">{{ feira.nome }}</a>
+                </h2>
+                <p><strong>Local:</strong> {{ feira.localidade }}</p>
+                <p><strong>Data:</strong> {{ feira.data_inicio|date:"d/m/Y" }} a {{ feira.data_fim|date:"d/m/Y" }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Nenhuma feira encontrada no momento.</p>
+    {% endif %}
+</body>
+</html>
