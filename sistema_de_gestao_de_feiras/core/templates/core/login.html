@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body { font-family: sans-serif; padding: 2em; max-width: 400px; margin: 50px auto; border: 1px solid #ccc; border-radius: 8px; }
-        form p { display: flex; flex-direction: column; }
-        input { padding: 8px; margin-top: 5px; }
-        button { padding: 10px; background-color: #092E20; color: white; border: none; cursor: pointer; margin-top: 10px; }
-        .errorlist { list-style-type: none; padding: 0; color: red; }
-    </style>
-</head>
+{% extends 'core/base.html' %}
+
+{% block title %}Login - Sistema de Feiras{% endblock %}
+
+{% block content %}
 <body>
     <h2>Acessar o Sistema</h2>
 
@@ -21,5 +13,4 @@
 
         <button type="submit">Entrar</button>
     </form>
-</body>
-</html>
+{% endblock %}

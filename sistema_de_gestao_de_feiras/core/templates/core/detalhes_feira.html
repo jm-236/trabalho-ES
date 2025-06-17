@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ feira.nome }}</title>
-    <style>
-         body { font-family: sans-serif; padding: 2em; }
-        .expositor-list { list-style-type: none; padding: 0; }
-        .expositor-list li { background-color: #f4f4f4; margin-bottom: 5px; padding: 10px; }
-    </style>
-</head>
-<body>
+{% extends 'core/base.html' %}
+
+{% block title %}Detalhes da feira {{ feira.nome }}{% endblock %}
+
+{% block content %}
     <a href="{% url 'inicio' %}">< Voltar para a lista de feiras</a>
     <hr>
 
@@ -31,5 +24,4 @@
         <p>Ainda não há expositores confirmados para esta feira.</p>
     {% endif %}
 
-</body>
-</html>
+{% endblock %}

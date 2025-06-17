@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Detalhes de {{ expositor.nome }}</title>
-    <style>
-        body { font-family: sans-serif; padding: 2em; max-width: 800px; margin: auto; }
-        .produto-card { border: 1px solid #ddd; padding: 1em; margin-bottom: 1em; border-radius: 8px; }
-        .produto-card h3 { margin-top: 0; }
-        .preco { font-weight: bold; color: green; }
-    </style>
-</head>
-<body>
+{% extends 'core/base.html' %}
+
+{% block title %}Detalhes de {{ expositor.nome }}{% endblock %}
+
+{% block content %}
     <a href="javascript:history.back()">< Voltar</a>
     <hr>
     
@@ -32,6 +24,4 @@
     {% else %}
         <p>Este expositor ainda não cadastrou produtos.</p>
     {% endif %}
-
-</body>
-</html>
+{% endblock %}

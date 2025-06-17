@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sistema de Feiras{% endblock %}</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; }
+        header { background-color: #092E20; color: white; padding: 1em; display: flex; justify-content: space-between; align-items: center; }
+        header a { color: white; text-decoration: none; }
+        .logo a { font-weight: bold; font-size: 1.2em; }
+        .main-content { padding: 2em; max-width: 960px; margin: auto; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="{% url 'inicio' %}">Sistema de Feiras</a>
+        </div>
+        <nav class="user-nav">
+            {% if user.is_authenticated %}
+                <span>Olá, {{ user.username }}!</span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 15px;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: inherit; font-family: inherit;">
+                        Sair
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Entrar</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
