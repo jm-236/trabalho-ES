@@ -33,7 +33,7 @@ class Ingresso(models.Model):
 
 
 class Admin(models.Model):
-    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     data_criacao = models.DateField()
 
     def __str__(self):

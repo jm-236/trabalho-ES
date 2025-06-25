@@ -3,7 +3,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.utils import timezone
-from .models import Feira, Expositor, Usuario
+from .models import Feira, Expositor, Usuario,Admin
 from .forms import CadastroForm
 
 def pagina_inicial(request):
@@ -58,7 +58,7 @@ def cadastro(request):
             password = form.cleaned_data['password1']
             nome = form.cleaned_data['nome']
             cpf = form.cleaned_data['cpf']
-            
+            print(f"{nome} {username} {password} {cpf}")
             # Salva o usuário do Django
             user = form.save()
             
@@ -69,8 +69,11 @@ def cadastro(request):
                 data_criacao=timezone.now().date()
             )
             
+            
             login(request, user)
             return redirect('inicio')
+        else:
+            print(form.cleaned_data)
     else:
         form = CadastroForm()
     
