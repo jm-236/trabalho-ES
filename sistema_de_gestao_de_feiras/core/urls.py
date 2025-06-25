@@ -11,4 +11,5 @@ urlpatterns = [
     path('expositor/<int:expositor_id>/', views.detalhes_expositor, name='detalhes_expositor'),
     path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('cadastro/', views.cadastro, name='cadastro'),
 ]

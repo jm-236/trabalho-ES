@@ -1,0 +1,47 @@
+
+{% extends 'core/base.html' %}
+
+{% block title %}Cadastro - Sistema de Feiras{% endblock %}
+
+{% block content %}
+<body>
+    <h2>Criar Nova Conta</h2>
+
+    <form method="post" action="{% url 'cadastro' %}">
+        {% csrf_token %}
+        
+        <p>
+            <label for="id_nome">Nome completo:</label>
+            {{ form.nome }}
+        </p>
+        
+        <p>
+            <label for="id_cpf">CPF:</label>
+            {{ form.cpf }}
+            <small>Digite apenas números</small>
+        </p>
+        
+        <p>
+            <label for="id_username">Nome de usuário:</label>
+            {{ form.username }}
+            <small>Máximo 150 caracteres. Apenas letras, números e @/./+/-/_</small>
+        </p>
+        
+        <p>
+            <label for="id_password1">Senha:</label>
+            {{ form.password1 }}
+            <small>Mínimo 8 caracteres.</small>
+        </p>
+        
+        <p>
+            <label for="id_password2">Confirmação da senha:</label>
+            {{ form.password2 }}
+            <small>Digite a mesma senha novamente para confirmação.</small>
+        </p>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <p><a href="{% url 'login' %}">Já tem uma conta? Faça login aqui</a></p>
+</body>
+{% endblock %}

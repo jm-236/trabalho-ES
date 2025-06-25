@@ -1,7 +1,10 @@
 # core/views.py
 
-from django.shortcuts import render, get_object_or_404
-from .models import Feira, Expositor
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import login
+from django.utils import timezone
+from .models import Feira, Expositor, Usuario
+from .forms import CadastroForm
 
 def pagina_inicial(request):
     # 1. Busca os dados do banco
@@ -45,3 +48,35 @@ def detalhes_expositor(request, expositor_id):
     }
 
     return render(request, 'core/detalhes_expositor.html', context)
+
+def cadastro(request):
+    if request.method == 'POST':
+        form = CadastroForm(request.POST)
+        if form.is_valid():
+            # Captura os dados do formulário
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            nome = form.cleaned_data['nome']
+            cpf = form.cleaned_data['cpf']
+            
+            # Salva o usuário do Django
+            user = form.save()
+            
+            # Cria o registro no modelo Usuario personalizado
+            usuario = Usuario.objects.create(
+                nome=nome,
+                cpf=cpf,
+                data_criacao=timezone.now().date()
+            )
+            
+            login(request, user)
+            return redirect('inicio')
+    else:
+        form = CadastroForm()
+    
+    # Context para o template
+    context = {
+        'form': form
+    }
+    
+    return render(request, 'core/cadastro.html', context)
