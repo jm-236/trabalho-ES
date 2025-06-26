@@ -1,6 +1,17 @@
-# Nix
-/result
-/result-*
+# Banco de dados
+db.sqlite3
 
-# Documentos
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Documentos 
 docs/
+
+# Ambientes Virtuais (boa prática adicionar)
+.venv/
+venv/
+env/
+
+# Arquivos de sistema operacional
+.DS_Store

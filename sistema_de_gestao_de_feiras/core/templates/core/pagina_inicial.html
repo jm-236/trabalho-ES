@@ -1,23 +1,25 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Página Inicial - Sistema de Feiras{% endblock %}
+{% block title %}Página Inicial{% endblock %}
 
 {% block content %}
     <h1>Próximas Feiras</h1>
-    <p>Veja os eventos disponíveis na plataforma.</p>
-    <hr>
 
-    {% if feiras %}
+    <!-- NOVO: Formulário de Filtro -->
+    <form method="get" action="{% url 'inicio' %}" style="margin-bottom: 2em;">
+        <input type="text" name="busca" placeholder="Buscar por nome ou local..." value="{{ busca }}">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div class="feiras-lista">
         {% for feira in feiras %}
-            <div class="feira-card" style="border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; border-radius: 8px;">
-                <h2>
-                    <a href="{% url 'detalhes_feira' feira.id %}">{{ feira.nome }}</a>
-                </h2>
+            <div class="feira-item" style="border: 1px solid #ccc; padding: 1em; margin-bottom: 1em;">
+                <h2><a href="{% url 'detalhes_feira' feira.id %}">{{ feira.nome }}</a></h2>
                 <p><strong>Local:</strong> {{ feira.localidade }}</p>
-                <p><strong>Data:</strong> {{ feira.data_inicio|date:"d/m/Y" }} a {{ feira.data_fim|date:"d/m/Y" }}</p>
+                <p><strong>Data:</strong> de {{ feira.data_inicio|date:"d/m/Y" }} a {{ feira.data_fim|date:"d/m/Y" }}</p>
             </div>
+        {% empty %}
+            <p>Nenhuma feira encontrada com os critérios de busca.</p>
         {% endfor %}
-    {% else %}
-        <p>Nenhuma feira encontrada no momento.</p>
-    {% endif %}
+    </div>
 {% endblock %}
