@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ tipo }} Feira{% endblock %}
+{% block content %}
+    <h1>{{ tipo }} Feira</h1>
+    <hr>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div style="color: red; margin-bottom: 1em;">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+            </div>
+        {% endif %}
+
+        <p>
+            {{ form.nome.label_tag }}<br>
+            {{ form.nome }}<br>
+            {{ form.nome.errors }}
+        </p>
+        <p>
+            {{ form.descricao.label_tag }}<br>
+            {{ form.descricao }}<br>
+            {{ form.descricao.errors }}
+        </p>
+        <p>
+            {{ form.localidade.label_tag }}<br>
+            {{ form.localidade }}<br>
+            {{ form.localidade.errors }}
+        </p>
+        <p>
+            {{ form.data_inicio.label_tag }}<br>
+            {{ form.data_inicio }}<br>
+            {{ form.data_inicio.errors }}
+        </p>
+        <p>
+            {{ form.data_fim.label_tag }}<br>
+            {{ form.data_fim }}<br>
+            {{ form.data_fim.errors }}
+        </p>
+        
+        <br>
+        <button type="submit">Salvar</button>
+        <a href="{% url 'dashboard' %}" style="margin-left: 1em;">Cancelar</a>
+    </form>
+{% endblock %}

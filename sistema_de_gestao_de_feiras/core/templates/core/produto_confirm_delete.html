@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% block title %}Confirmar Exclusão de Produto{% endblock %}
+{% block content %}
+    <h1>Confirmar Exclusão</h1>
+    <hr>
+    <p>Você tem certeza de que deseja excluir o produto "<strong>{{ produto.nome }}</strong>"?</p>
+    <p><strong>Esta ação não pode ser desfeita.</strong></p>
+    
+    <form method="post" style="margin-top: 2em;">
+        {% csrf_token %}
+        <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            Sim, excluir produto.
+        </button>
+        <a href="{% url 'dashboard' %}" style="margin-left: 1em;">Não, voltar para o painel.</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ tipo }} Produto{% endblock %}
+{% block content %}
+    <h1>{{ tipo }} Produto</h1>
+    <hr>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <button type="submit">Salvar Produto</button>
+        <a href="{% url 'dashboard' %}" style="margin-left: 1em;">Cancelar</a>
+    </form>
+{% endblock %}

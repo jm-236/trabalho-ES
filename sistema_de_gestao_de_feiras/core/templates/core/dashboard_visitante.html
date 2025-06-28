@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+{% block title %}Meu Painel{% endblock %}
+{% block content %}
+<h1>Painel do Visitante</h1>
+<p>Bem-vindo, {{ user.first_name|default:user.username }}!</p>
+<hr>
+<h3>Meus Ingressos</h3>
+{% if ingressos %}
+    <ul>
+    {% for ingresso in ingressos %}
+        <li>Ingresso para <strong><a href="{% url 'detalhes_feira' ingresso.feira.id %}">{{ ingresso.feira.nome }}</a></strong> (emitido em {{ ingresso.data_emissao|date:"d/m/Y H:i" }})</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Você ainda não emitiu nenhum ingresso. <a href="{% url 'inicio' %}">Ver feiras disponíveis.</a></p>
+{% endif %}
+{% endblock %}

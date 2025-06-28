@@ -18,7 +18,8 @@
         </div>
         <nav class="user-nav">
             {% if user.is_authenticated %}
-                <span>Olá, {{ user.username }}!</span>
+                <a href="{% url 'dashboard' %}" style="margin-right: 15px;">Meu Painel</a>
+                <span>Olá, {{ user.first_name|default:user.username }}!</span>
                 <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 15px;">
                     {% csrf_token %}
                     <button type="submit" style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: inherit; font-family: inherit;">
@@ -26,6 +27,7 @@
                     </button>
                 </form>
             {% else %}
+                <a href="{% url 'cadastro' %}" style="margin-right: 15px;">Cadastrar</a>
                 <a href="{% url 'login' %}">Entrar</a>
             {% endif %}
         </nav>
@@ -35,5 +37,8 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    {% block extra_js %}
+    {% endblock %}
 </body>
 </html>

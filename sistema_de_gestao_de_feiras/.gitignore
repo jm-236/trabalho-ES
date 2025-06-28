@@ -15,3 +15,9 @@ env/
 
 # Arquivos de sistema operacional
 .DS_Store
+
+# Arquivos de IDE / Editor
+# Ignora as configurações pessoais do VSCode, mas permite compartilhar
+# extensões recomendadas para a equipe no arquivo extensions.json.
+.vscode/*
+!.vscode/extensions.json

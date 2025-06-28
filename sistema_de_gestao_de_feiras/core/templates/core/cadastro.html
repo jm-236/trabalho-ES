@@ -1,47 +1,76 @@
-
 {% extends 'core/base.html' %}
 
 {% block title %}Cadastro - Sistema de Feiras{% endblock %}
 
 {% block content %}
-<body>
-    <h2>Criar Nova Conta</h2>
+<h2>Criar Nova Conta</h2>
+<form method="post" novalidate>
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+        <div style="color: red; margin-bottom: 1em;">
+        {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+        </div>
+    {% endif %}
 
-    <form method="post" action="{% url 'cadastro' %}">
-        {% csrf_token %}
-        
-        <p>
-            <label for="id_nome">Nome completo:</label>
-            {{ form.nome }}
-        </p>
-        
-        <p>
-            <label for="id_cpf">CPF:</label>
-            {{ form.cpf }}
-            <small>Digite apenas números</small>
-        </p>
-        
-        <p>
-            <label for="id_username">Nome de usuário:</label>
-            {{ form.username }}
-            <small>Máximo 150 caracteres. Apenas letras, números e @/./+/-/_</small>
-        </p>
-        
-        <p>
-            <label for="id_password1">Senha:</label>
-            {{ form.password1 }}
-            <small>Mínimo 8 caracteres.</small>
-        </p>
-        
-        <p>
-            <label for="id_password2">Confirmação da senha:</label>
-            {{ form.password2 }}
-            <small>Digite a mesma senha novamente para confirmação.</small>
-        </p>
+    <div style="margin-bottom: 1em;">
+        <strong>{{ form.user_type.label_tag }}</strong><br>
+        {{ form.user_type }}
+        {{ form.user_type.errors }}
+    </div>
 
-        <button type="submit">Cadastrar</button>
-    </form>
+    <hr>
+    
+    <div style="margin-bottom: 1em;">
+        <strong>Informações Básicas</strong>
+        <p>{{ form.username.label_tag }}<br>{{ form.username }}<br>{{ form.username.errors }}</p>
+        <p>{{ form.first_name.label_tag }}<br>{{ form.first_name }}<br>{{ form.first_name.errors }}</p>
+        <p>{{ form.email.label_tag }}<br>{{ form.email }}<br>{{ form.email.errors }}</p>
+        <p>{{ form.password.label_tag }}<br>{{ form.password }}<br><small>{{ form.password.help_text }}</small>{{ form.password.errors }}</p>
+        <p>{{ form.password2.label_tag }}<br>{{ form.password2 }}<br>{{ form.password2.errors }}</p>
+    </div>
 
-    <p><a href="{% url 'login' %}">Já tem uma conta? Faça login aqui</a></p>
-</body>
+    <div id="expositor-fields" style="display:none; margin-top: 1rem; padding: 1rem; border: 1px solid #ddd; border-radius: 5px;">
+        <h4>Informações do Expositor (Obrigatório)</h4>
+        <p>{{ form.descricao_expositor.label_tag }}<br>{{ form.descricao_expositor }}<br>{{ form.descricao_expositor.errors }}</p>
+        <p>{{ form.contato_expositor.label_tag }}<br>{{ form.contato_expositor }}<br>{{ form.contato_expositor.errors }}</p>
+    </div>
+
+    <div id="organizador-fields" style="display:none; margin-top: 1rem; padding: 1rem; border: 1px solid #ddd; border-radius: 5px;">
+        <h4>Informações do Organizador</h4>
+        <p>{{ form.empresa_organizador.label_tag }}<br>{{ form.empresa_organizador }}<br>{{ form.empresa_organizador.errors }}</p>
+    </div>
+
+    <br>
+    <button type="submit">Finalizar Cadastro</button>
+</form>
+
+<p style="margin-top: 2em;"><a href="{% url 'login' %}">Já tem uma conta? Faça login aqui</a></p>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userTypeRadios = document.querySelectorAll('input[name="user_type"]');
+        const expositorFields = document.getElementById('expositor-fields');
+        const organizadorFields = document.getElementById('organizador-fields');
+
+        function toggleFields() {
+            const selectedType = document.querySelector('input[name="user_type"]:checked').value;
+            
+            expositorFields.style.display = (selectedType === 'expositor') ? 'block' : 'none';
+            organizadorFields.style.display = (selectedType === 'organizador') ? 'block' : 'none';
+        }
+
+        userTypeRadios.forEach(radio => {
+            radio.addEventListener('change', toggleFields);
+        });
+
+        // Garante o estado inicial correto ao carregar a página (ou ao voltar com erro)
+        toggleFields();
+    });
+</script>
 {% endblock %}

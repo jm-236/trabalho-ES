@@ -1,143 +1,192 @@
-# core/views.py
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
-from django.utils import timezone
-from .models import Feira, Expositor, Usuario, Ingresso # Adicionado Ingresso
-from .forms import CadastroForm
-from django.db.models import Q # Adicionado para o filtro
-from django.contrib.auth.decorators import login_required # Adicionado para proteger views
-from django.contrib import messages # Adicionado para feedback ao usuário
+from .models import Feira, Expositor, Organizador, Ingresso, Produto
+from .forms import CadastroForm, FeiraForm, ProdutoForm
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
-# ATUALIZADO: Adicionado filtro de busca
 def pagina_inicial(request):
     busca = request.GET.get('busca', '')
-    lista_de_feiras = Feira.objects.all().order_by('-data_inicio')
-
+    feiras = Feira.objects.all().order_by('-data_inicio')
     if busca:
-        lista_de_feiras = lista_de_feiras.filter(
-            Q(nome__icontains=busca) | Q(localidade__icontains=busca)
-        )
+        feiras = feiras.filter(Q(nome__icontains=busca) | Q(localidade__icontains=busca))
+    return render(request, 'core/pagina_inicial.html', {'feiras': feiras, 'busca': busca})
 
-    context = {
-        'feiras': lista_de_feiras,
-        'busca': busca,  # Passa o termo de busca de volta para o template
-    }
-    
-    return render(request, 'core/pagina_inicial.html', context)
-
-# ATUALIZADO: Passa informações do ingresso para o template
 def detalhes_feira(request, feira_id):
     feira = get_object_or_404(Feira, pk=feira_id)
-    expositores_da_feira = feira.expositores.all()
-    
     ingresso_usuario = None
     if request.user.is_authenticated:
-        try:
-            # Tenta encontrar o Usuario customizado correspondente ao User logado
-            usuario_custom = Usuario.objects.get(nome=request.user.username)
-            # Verifica se já existe um ingresso para este usuário e feira
-            ingresso_usuario = Ingresso.objects.filter(feira=feira, usuario=usuario_custom).first()
-        except Usuario.DoesNotExist:
-            # Se não encontrar o Usuario customizado, não faz nada.
-            # Isso pode acontecer se o 'admin' não tiver um 'Usuario' correspondente.
-            pass
-
+        ingresso_usuario = Ingresso.objects.filter(feira=feira, usuario=request.user).first()
     context = {
         'feira': feira,
-        'expositores': expositores_da_feira,
-        'ingresso_usuario': ingresso_usuario, # Envia o ingresso (ou None) para o template
+        'expositores': feira.expositores.all(),
+        'ingresso_usuario': ingresso_usuario,
     }
-
     return render(request, 'core/detalhes_feira.html', context)
-
-# ⚠️ PONTO DE ATENÇÃO: A lógica abaixo assume que o 'nome' no seu modelo 'Usuario'
-# é o mesmo que o 'username' do 'User' do Django. Isso funciona com base na sua
-# view de cadastro. Se isso mudar, essa lógica precisará ser ajustada.
-# A melhor solução a longo prazo seria adicionar um OneToOneField entre User e Usuario.
-
-# NOVO: View para emitir ingresso
-@login_required
-def emitir_ingresso(request, feira_id):
-    if request.method == 'POST':
-        feira = get_object_or_404(Feira, id=feira_id)
-        try:
-            usuario_custom = Usuario.objects.get(nome=request.user.username)
-            
-            # Verifica se o ingresso já não existe antes de criar
-            if not Ingresso.objects.filter(feira=feira, usuario=usuario_custom).exists():
-                Ingresso.objects.create(
-                    feira=feira, 
-                    usuario=usuario_custom,
-                    data_emissao=timezone.now().date(),
-                    # O campo 'codigo' precisa ser preenchido. Usaremos o ID do ingresso como um código simples.
-                    # Uma solução melhor seria gerar um código aleatório.
-                    codigo=0 # Será preenchido depois
-                )
-                messages.success(request, f"Ingresso para '{feira.nome}' emitido com sucesso!")
-            else:
-                messages.warning(request, "Você já possui um ingresso para esta feira.")
-
-        except Usuario.DoesNotExist:
-            messages.error(request, "Não foi possível emitir o ingresso. Perfil de usuário não encontrado.")
-    
-    return redirect('detalhes_feira', feira_id=feira_id)
-
-
-# NOVO: View para excluir ingresso
-@login_required
-def excluir_ingresso(request, ingresso_id):
-    if request.method == 'POST':
-        try:
-            usuario_custom = Usuario.objects.get(nome=request.user.username)
-            ingresso = get_object_or_404(Ingresso, id=ingresso_id, usuario=usuario_custom)
-            feira_id = ingresso.feira.id
-            ingresso.delete()
-            messages.info(request, "Seu ingresso foi cancelado.")
-            return redirect('detalhes_feira', feira_id=feira_id)
-        except Usuario.DoesNotExist:
-            messages.error(request, "Não foi possível cancelar o ingresso. Perfil de usuário não encontrado.")
-        except Ingresso.DoesNotExist:
-            messages.error(request, "Ingresso não encontrado ou não pertence a você.")
-
-    # Se a requisição não for POST ou der erro, redireciona para a página inicial
-    return redirect('inicio')
-
 
 def detalhes_expositor(request, expositor_id):
     expositor = get_object_or_404(Expositor, pk=expositor_id)
-    lista_de_produtos = expositor.produtos.all()
-
+    produtos = Produto.objects.filter(expositor=expositor)
     context = {
         'expositor': expositor,
-        'produtos': lista_de_produtos
+        'produtos': produtos
     }
-
     return render(request, 'core/detalhes_expositor.html', context)
 
 def cadastro(request):
     if request.method == 'POST':
         form = CadastroForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            nome = form.cleaned_data['nome']
-            cpf = form.cleaned_data['cpf']
-            
             user = form.save()
-            
-            Usuario.objects.create(
-                nome=username, # Alterado para usar username para garantir a ligação
-                cpf=cpf,
-                data_criacao=timezone.now().date()
-            )
-            
             login(request, user)
-            return redirect('inicio')
+            request.session['welcome_message_sent'] = False
+            return redirect('dashboard')
     else:
         form = CadastroForm()
+    return render(request, 'core/cadastro.html', {'form': form})
+
+@login_required
+def dashboard(request):
+    if hasattr(request.user, 'expositor') and not request.session.get('welcome_message_sent'):
+        messages.success(request, f'Seja bem-vindo, Expositor {request.user.first_name or request.user.username}!')
+        request.session['welcome_message_sent'] = True
+
+    if hasattr(request.user, 'expositor'):
+        meus_produtos = Produto.objects.filter(expositor=request.user.expositor)
+        context = {'produtos': meus_produtos}
+        return render(request, 'core/dashboard_expositor.html', context)
+    elif hasattr(request.user, 'organizador'):
+        feiras_organizadas = Feira.objects.filter(organizador=request.user.organizador).order_by('-data_inicio')
+        context = {'feiras_organizadas': feiras_organizadas}
+        return render(request, 'core/dashboard_organizador.html', context)
+    else:
+        meus_ingressos = Ingresso.objects.filter(usuario=request.user).order_by('-data_emissao')
+        return render(request, 'core/dashboard_visitante.html', {'ingressos': meus_ingressos})
+
+@login_required
+def emitir_ingresso(request, feira_id):
+    if request.method == 'POST':
+        feira = get_object_or_404(Feira, id=feira_id)
+        if not Ingresso.objects.filter(feira=feira, usuario=request.user).exists():
+            Ingresso.objects.create(feira=feira, usuario=request.user)
+            messages.success(request, f"Ingresso para '{feira.nome}' emitido com sucesso!")
+        else:
+            messages.warning(request, "Você já possui um ingresso para esta feira.")
+    return redirect('detalhes_feira', feira_id=feira_id)
+
+@login_required
+def excluir_ingresso(request, ingresso_id):
+    if request.method == 'POST':
+        ingresso = get_object_or_404(Ingresso, id=ingresso_id, usuario=request.user)
+        feira_id = ingresso.feira.id
+        ingresso.delete()
+        messages.info(request, "Seu ingresso foi cancelado.")
+        return redirect('detalhes_feira', feira_id=feira_id)
+    return redirect('inicio')
+
+@login_required
+def feira_criar(request):
+    if not hasattr(request.user, 'organizador'):
+        return redirect('dashboard')
+    if request.method == 'POST':
+        form = FeiraForm(request.POST)
+        if form.is_valid():
+            nova_feira = form.save(commit=False)
+            nova_feira.organizador = request.user.organizador
+            nova_feira.save()
+            messages.success(request, f"A feira '{nova_feira.nome}' foi criada com sucesso!")
+            return redirect('dashboard')
+    else:
+        form = FeiraForm()
+    return render(request, 'core/feira_form.html', {'form': form, 'tipo': 'Criar'})
+
+@login_required
+def feira_editar(request, feira_id):
+    feira = get_object_or_404(Feira, id=feira_id, organizador__usuario=request.user)
+    if request.method == 'POST':
+        form = FeiraForm(request.POST, instance=feira)
+        if form.is_valid():
+            form.save()
+            messages.info(request, f"A feira '{feira.nome}' foi atualizada.")
+            return redirect('dashboard')
+    else:
+        form = FeiraForm(instance=feira)
+    return render(request, 'core/feira_form.html', {'form': form, 'tipo': 'Editar'})
+
+@login_required
+def feira_excluir(request, feira_id):
+    feira = get_object_or_404(Feira, id=feira_id, organizador__usuario=request.user)
+    if request.method == 'POST':
+        nome_feira = feira.nome
+        feira.delete()
+        messages.warning(request, f"A feira '{nome_feira}' foi excluída.")
+        return redirect('dashboard')
+    return render(request, 'core/feira_confirm_delete.html', {'feira': feira})
+
+@login_required
+def produto_criar(request):
+    if not hasattr(request.user, 'expositor'):
+        return redirect('dashboard')
+    if request.method == 'POST':
+        form = ProdutoForm(request.POST)
+        if form.is_valid():
+            novo_produto = form.save(commit=False)
+            novo_produto.expositor = request.user.expositor
+            novo_produto.save()
+            messages.success(request, f"Produto '{novo_produto.nome}' criado com sucesso!")
+            return redirect('dashboard')
+    else:
+        form = ProdutoForm()
+    return render(request, 'core/produto_form.html', {'form': form, 'tipo': 'Criar'})
+
+@login_required
+def produto_editar(request, produto_id):
+    produto = get_object_or_404(Produto, id=produto_id, expositor__usuario=request.user)
+    if request.method == 'POST':
+        form = ProdutoForm(request.POST, instance=produto)
+        if form.is_valid():
+            form.save()
+            messages.info(request, f"Produto '{produto.nome}' atualizado.")
+            return redirect('dashboard')
+    else:
+        form = ProdutoForm(instance=produto)
+    return render(request, 'core/produto_form.html', {'form': form, 'tipo': 'Editar'})
+
+@login_required
+def produto_excluir(request, produto_id):
+    produto = get_object_or_404(Produto, id=produto_id, expositor__usuario=request.user)
+    if request.method == 'POST':
+        nome_produto = produto.nome
+        produto.delete()
+        messages.warning(request, f"Produto '{nome_produto}' foi excluído.")
+        return redirect('dashboard')
+    return render(request, 'core/produto_confirm_delete.html', {'produto': produto})
+
+@login_required
+def expositor_gerenciar_feiras(request):
+    if not hasattr(request.user, 'expositor'):
+        return redirect('dashboard')
+    
+    expositor = request.user.expositor
+    
+    if request.method == 'POST':
+        feira_id = request.POST.get('feira_id')
+        action = request.POST.get('action')
+        feira = get_object_or_404(Feira, id=feira_id)
+        if action == 'add':
+            feira.expositores.add(expositor)
+            messages.success(request, f"Você agora está participando da feira '{feira.nome}'.")
+        elif action == 'remove':
+            feira.expositores.remove(expositor)
+            messages.info(request, f"Você deixou de participar da feira '{feira.nome}'.")
+        return redirect('expositor_gerenciar_feiras')
+
+    minhas_feiras = Feira.objects.filter(expositores=expositor)
+    outras_feiras = Feira.objects.exclude(expositores=expositor)
     
     context = {
-        'form': form
+        'minhas_feiras': minhas_feiras,
+        'outras_feiras': outras_feiras,
     }
-    
-    return render(request, 'core/cadastro.html', context)
+    return render(request, 'core/expositor_gerenciar_feiras.html', context)

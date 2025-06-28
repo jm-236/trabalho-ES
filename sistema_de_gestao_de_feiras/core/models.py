@@ -1,81 +1,60 @@
 from django.db import models
 from django.conf import settings
 
+# --- PERFIS DE USUÁRIO ---
+# Cada perfil está ligado a um único usuário padrão do Django.
+
+class Organizador(models.Model):
+    """ Representa um usuário que pode criar e gerenciar feiras. """
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    empresa = models.CharField(max_length=100, blank=True, null=True, help_text="Nome da empresa organizadora, se aplicável.")
+
+    def __str__(self):
+        return self.usuario.username
+
+class Expositor(models.Model):
+    """ Representa um usuário que pode expor produtos em feiras. """
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    descricao = models.TextField()
+    contato = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.usuario.username
+
+# --- MODELOS PRINCIPAIS ---
 
 class Feira(models.Model):
+    """ Representa um evento (feira). """
     nome = models.CharField(max_length=100)
     descricao = models.TextField()
     localidade = models.CharField(max_length=200)
     data_inicio = models.DateField()
     data_fim = models.DateField()
+    organizador = models.ForeignKey(Organizador, on_delete=models.PROTECT, related_name='feiras_organizadas')
+    expositores = models.ManyToManyField(Expositor, related_name='feiras_participantes', blank=True)
 
     def __str__(self):
         return self.nome
-
-
-class Usuario(models.Model):
-    nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=11)
-    data_criacao = models.DateField()
-
-    def __str__(self):
-        return self.nome
-
-
-class Ingresso(models.Model):
-    codigo = models.IntegerField()
-    data_emissao = models.DateField()
-    feira = models.ForeignKey(Feira, related_name='ingressos', on_delete=models.CASCADE)
-    usuario = models.ForeignKey(Usuario, related_name='ingressos', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"Ingresso {self.codigo} - {self.feira.nome}"
-
-
-class Admin(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    data_criacao = models.DateField()
-
-    def __str__(self):
-        return self.usuario.username
-
-
-class Expositor(models.Model):
-    descricao = models.TextField()
-    contato = models.CharField(max_length=100)  # Email ou telefone
-    feiras = models.ManyToManyField(Feira, related_name='expositores')
-    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.usuario.username
-
 
 class Produto(models.Model):
+    """ Representa um item vendido por um Expositor. """
     nome = models.CharField(max_length=100)
     descricao = models.TextField()
     preco = models.DecimalField(max_digits=10, decimal_places=2)
-    quantidade = models.IntegerField()
+    quantidade = models.IntegerField(default=0)
     expositor = models.ForeignKey(Expositor, on_delete=models.CASCADE, related_name='produtos')
-    data_criacao = models.DateField()
+    data_criacao = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.nome
 
-
-class Endereco(models.Model):
-    local = models.CharField(max_length=100)
-    estado = models.CharField(max_length=30)
-    cep = models.CharField(max_length=9)
-    data_criacao = models.DateField()
-
-    def __str__(self):
-        return self.local
-
-
-class Expoe(models.Model):
-    expositor = models.ForeignKey(Expositor, related_name='feiras_expostas', on_delete=models.CASCADE)
-    feira = models.ForeignKey(Feira, related_name='exposicoes', on_delete=models.CASCADE)
-    data_criacao = models.DateField()
+class Ingresso(models.Model):
+    """ Representa um ingresso de um Visitante para uma Feira. """
+    data_emissao = models.DateTimeField(auto_now_add=True)
+    feira = models.ForeignKey(Feira, related_name='ingressos', on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ingressos', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.expositor} expõe na {self.feira}"
+        return f"Ingresso de {self.usuario.username} para {self.feira.nome}"
+    
+# Este é um teste para forçar o salvamento    

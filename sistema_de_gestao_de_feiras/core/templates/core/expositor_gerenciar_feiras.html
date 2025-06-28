@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% block title %}Gerenciar Minhas Feiras{% endblock %}
+{% block content %}
+    <h1>Gerenciar Participação em Feiras</h1>
+    <p>Escolha as feiras das quais você deseja participar ou deixar de participar.</p>
+    <hr>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <h2>Feiras em que estou participando</h2>
+    {% if minhas_feiras %}
+        <ul>
+            {% for feira in minhas_feiras %}
+            <li style="margin-bottom: 10px;">
+                {{ feira.nome }} ({{ feira.localidade }})
+                <form action="{% url 'expositor_gerenciar_feiras' %}" method="post" style="display: inline; margin-left: 20px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="feira_id" value="{{ feira.id }}">
+                    <input type="hidden" name="action" value="remove">
+                    <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;">Sair da Feira</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Você ainda não está participando de nenhuma feira.</p>
+    {% endif %}
+
+    <hr style="margin-top: 2em;">
+
+    <h2>Feiras Disponíveis</h2>
+    {% if outras_feiras %}
+        <ul>
+            {% for feira in outras_feiras %}
+            <li style="margin-bottom: 10px;">
+                {{ feira.nome }} ({{ feira.localidade }})
+                <form action="{% url 'expositor_gerenciar_feiras' %}" method="post" style="display: inline; margin-left: 20px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="feira_id" value="{{ feira.id }}">
+                    <input type="hidden" name="action" value="add">
+                    <button type="submit" style="color: green; background: none; border: none; cursor: pointer; text-decoration: underline;">Participar</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Não há outras feiras disponíveis no momento.</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'dashboard' %}" style="margin-top: 2em; display: inline-block;">Voltar ao Painel</a>
+{% endblock %}

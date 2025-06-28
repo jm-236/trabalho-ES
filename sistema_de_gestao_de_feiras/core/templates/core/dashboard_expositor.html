@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+{% block title %}Painel do Expositor{% endblock %}
+{% block content %}
+    {% if messages %}
+    {% for message in messages %}
+        <div id="welcome-message" style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; font-weight: bold;">
+        {{ message }}
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    <h1>Painel do Expositor</h1>
+    <p>Bem-vindo, {{ user.first_name|default:user.username }}!</p>
+    <hr>
+    
+    <h3>Gerenciar Feiras (HU12)</h3>
+    <p>Escolha as feiras das quais você deseja participar.</p>
+    <a href="{% url 'expositor_gerenciar_feiras' %}" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 1em;">
+        Escolher Feiras para Expor
+    </a>
+
+    <hr>
+
+    <h3>Meus Produtos (HU9, HU10, HU11)</h3>
+    <a href="{% url 'produto_criar' %}" style="display: inline-block; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 1em;">
+        + Adicionar Novo Produto
+    </a>
+
+    {% if produtos %}
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px; text-align: left;">Nome do Produto</th>
+                    <th style="padding: 8px; text-align: right;">Preço</th>
+                    <th style="padding: 8px; text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td style="padding: 8px;">{{ produto.nome }}</td>
+                    <td style="padding: 8px; text-align: right;">R$ {{ produto.preco|floatformat:2 }}</td>
+                    <td style="padding: 8px; text-align: center;">
+                        <a href="{% url 'produto_editar' produto.id %}">Editar</a> |
+                        <a href="{% url 'produto_excluir' produto.id %}" style="color: red;">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Você ainda não cadastrou nenhum produto.</p>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const message = document.getElementById('welcome-message');
+    if (message) {
+        setTimeout(() => {
+        message.style.transition = 'opacity 1s ease-out';
+        message.style.opacity = '0';
+        setTimeout(() => {
+            if (message) message.style.display = 'none';
+        }, 1000);
+        }, 3000);
+    }
+    });
+</script>
+{% endblock %}

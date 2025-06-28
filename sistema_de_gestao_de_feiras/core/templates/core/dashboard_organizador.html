@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+{% block title %}Painel do Organizador{% endblock %}
+{% block content %}
+    <h1>Painel do Organizador</h1>
+    <p>Bem-vindo, {{ user.first_name|default:user.username }}!</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <hr>
+    
+    <h3>Minhas Feiras</h3>
+    
+    <a href="{% url 'feira_criar' %}" style="display: inline-block; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 1em;">
+        + Criar Nova Feira
+    </a>
+
+    {% if feiras_organizadas %}
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px; text-align: left;">Nome da Feira</th>
+                    <th style="padding: 8px; text-align: left;">Localidade</th>
+                    <th style="padding: 8px; text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feira in feiras_organizadas %}
+                <tr>
+                    <td style="padding: 8px;">{{ feira.nome }}</td>
+                    <td style="padding: 8px;">{{ feira.localidade }}</td>
+                    <td style="padding: 8px; text-align: center;">
+                        <a href="{% url 'feira_editar' feira.id %}">Editar</a> |
+                        <a href="{% url 'feira_excluir' feira.id %}" style="color: red;">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Você ainda não criou nenhuma feira.</p>
+    {% endif %}
+
+{% endblock %}
