@@ -20,6 +20,11 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" style="margin-right: 15px;">Meu Painel</a>
                 <span>Olá, {{ user.first_name|default:user.username }}!</span>
+                {% if 'Expositor' in user.groups.all.0.name %}
+                    <a href="{% url 'editar_perfil_expositor' %}" style="margin-left: 15px;">Meu Perfil</a>
+                {% else %}
+                    <a href="{% url 'editar_perfil' %}" style="margin-left: 15px;">Meu Perfil</a>
+                {% endif %}
                 <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 15px;">
                     {% csrf_token %}
                     <button type="submit" style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: inherit; font-family: inherit;">

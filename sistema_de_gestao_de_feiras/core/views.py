@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from .models import Feira, Expositor, Organizador, Ingresso, Produto
-from .forms import CadastroForm, FeiraForm, ProdutoForm
+from .forms import CadastroForm, FeiraForm, ProdutoForm, ExpositorProfileForm
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .forms import CustomUserChangeForm # Importe o novo form
 
 def pagina_inicial(request):
     busca = request.GET.get('busca', '')
@@ -190,3 +191,43 @@ def expositor_gerenciar_feiras(request):
         'outras_feiras': outras_feiras,
     }
     return render(request, 'core/expositor_gerenciar_feiras.html', context)
+
+@login_required
+def editar_perfil(request):
+    if request.method == 'POST':
+        # Use o formulário personalizado
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Seu perfil foi atualizado com sucesso!')
+            return redirect('inicio')
+    else:
+        # Use o formulário personalizado
+        form = CustomUserChangeForm(instance=request.user)
+
+    return render(request, 'core/editar_perfil.html', {'form': form})
+
+@login_required
+def editar_perfil_expositor(request):
+    expositor_profile = Expositor.objects.get(usuario=request.user)
+
+    if request.method == 'POST':
+        # Use o formulário personalizado aqui também
+        user_form = CustomUserChangeForm(request.POST, instance=request.user)
+        profile_form = ExpositorProfileForm(request.POST, instance=expositor_profile)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Seu perfil de expositor foi atualizado com sucesso!')
+            return redirect('inicio')
+    else:
+        # E aqui
+        user_form = CustomUserChangeForm(instance=request.user)
+        profile_form = ExpositorProfileForm(instance=expositor_profile)
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form
+    }
+    return render(request, 'core/editar_perfil_expositor.html', context)

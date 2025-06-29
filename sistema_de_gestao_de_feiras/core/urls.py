@@ -30,4 +30,8 @@ urlpatterns = [
     path('expositor/produto/editar/<int:produto_id>/', views.produto_editar, name='produto_editar'),
     path('expositor/produto/excluir/<int:produto_id>/', views.produto_excluir, name='produto_excluir'),
     path('expositor/feiras/', views.expositor_gerenciar_feiras, name='expositor_gerenciar_feiras'),
+
+    # TElas de edição de perfil
+    path('perfil/', views.editar_perfil, name='editar_perfil'),
+    path('perfil/expositor/', views.editar_perfil_expositor, name='editar_perfil_expositor'),
 ]

@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+{% block title %}Editar Perfil de Expositor{% endblock %}
+{% block content %}
+    <h2>Editar Perfil de Expositor</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="color: green; border: 1px solid green; padding: 10px; margin-bottom: 10px;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <h3>Dados da Conta</h3>
+        {{ user_form.as_p }}
+        <hr>
+        <h3>Dados do Perfil de Expositor</h3>
+        {{ profile_form.as_p }}
+        <button type="submit">Salvar Alterações</button>
+    </form>
+{% endblock %}

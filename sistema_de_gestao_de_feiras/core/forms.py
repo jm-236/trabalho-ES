@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserChangeForm
 from .models import Expositor, Organizador, Feira, Produto
 from django.db import transaction
 
@@ -96,6 +97,29 @@ class ProdutoForm(forms.ModelForm):
             'descricao': 'Descrição do Produto',
             'preco': 'Preço (R$)',
             'quantidade': 'Quantidade em Estoque',
+        }
+
+class ExpositorProfileForm(forms.ModelForm):
+    class Meta:
+        model = Expositor
+        # Inclua apenas os campos que o expositor pode editar
+        fields = ['usuario', 'contato', 'descricao']
+
+class CustomUserChangeForm(UserChangeForm):
+    # Removemos o campo de senha e seu texto de ajuda deste formulário.
+    # A troca de senha deve ser um processo separado.
+    password = None
+
+    class Meta:
+        model = User
+        # AQUI ESTÁ A MÁGICA: definimos EXATAMENTE os campos que queremos mostrar.
+        fields = ('username', 'email', 'first_name', 'last_name')
+        # E podemos traduzir os rótulos (labels) para português.
+        labels = {
+            'username': 'Nome de Usuário',
+            'email': 'E-mail',
+            'first_name': 'Primeiro Nome',
+            'last_name': 'Último Nome',
         }
 
 # A CLASSE 'ExpositorFeirasForm' FOI REMOVIDA DAQUI, POIS ESTAVA INCORRETA.
