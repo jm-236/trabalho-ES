@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
+
 
 # --- PERFIS DE USUÁRIO ---
 # Cada perfil está ligado a um único usuário padrão do Django.
@@ -30,8 +32,9 @@ class Feira(models.Model):
     localidade = models.CharField(max_length=200)
     data_inicio = models.DateField()
     data_fim = models.DateField()
-    organizador = models.ForeignKey(Organizador, on_delete=models.PROTECT, related_name='feiras_organizadas')
-    expositores = models.ManyToManyField(Expositor, related_name='feiras_participantes', blank=True)
+    organizador = models.ForeignKey(Organizador, on_delete=models.CASCADE, related_name='feiras_organizadas', null=True)
+    expositores_aprovados = models.ManyToManyField(Expositor, related_name='feiras_aprovadas', blank=True)
+    expositores_pendentes = models.ManyToManyField(Expositor, related_name='feiras_pendentes', blank=True)
 
     def __str__(self):
         return self.nome

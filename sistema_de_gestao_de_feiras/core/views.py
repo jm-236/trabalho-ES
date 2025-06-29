@@ -21,8 +21,9 @@ def detalhes_feira(request, feira_id):
         ingresso_usuario = Ingresso.objects.filter(feira=feira, usuario=request.user).first()
     context = {
         'feira': feira,
-        'expositores': feira.expositores.all(),
+        'expositores': feira.expositores_aprovados.all(),
         'ingresso_usuario': ingresso_usuario,
+        'organizador': feira.organizador,
     }
     return render(request, 'core/detalhes_feira.html', context)
 
@@ -176,18 +177,27 @@ def expositor_gerenciar_feiras(request):
         action = request.POST.get('action')
         feira = get_object_or_404(Feira, id=feira_id)
         if action == 'add':
-            feira.expositores.add(expositor)
-            messages.success(request, f"Você agora está participando da feira '{feira.nome}'.")
+            feira.expositores_pendentes.add(expositor)
+            messages.success(request, f"Você agora está inscrito na feira '{feira.nome}'.")
         elif action == 'remove':
-            feira.expositores.remove(expositor)
+            # Verifica e remove da lista de aprovados, se ele estiver lá
+            if expositor in feira.expositores_aprovados.all():
+                feira.expositores_aprovados.remove(expositor)
+
+            # Verifica e remove da lista de pendentes, se ele estiver lá
+            if expositor in feira.expositores_pendentes.all():
+                feira.expositores_pendentes.remove(expositor)
+
             messages.info(request, f"Você deixou de participar da feira '{feira.nome}'.")
         return redirect('expositor_gerenciar_feiras')
 
-    minhas_feiras = Feira.objects.filter(expositores=expositor)
-    outras_feiras = Feira.objects.exclude(expositores=expositor)
+    feiras_aprovadas = Feira.objects.filter(expositores_aprovados=expositor)
+    feiras_pendentes = Feira.objects.filter(expositores_pendentes=expositor)
+    outras_feiras = Feira.objects.exclude(expositores_aprovados=expositor).exclude(expositores_pendentes=expositor)
     
     context = {
-        'minhas_feiras': minhas_feiras,
+        'feiras_aprovadas': feiras_aprovadas,
+        'feiras_pendentes': feiras_pendentes,
         'outras_feiras': outras_feiras,
     }
     return render(request, 'core/expositor_gerenciar_feiras.html', context)
@@ -231,3 +241,41 @@ def editar_perfil_expositor(request):
         'profile_form': profile_form
     }
     return render(request, 'core/editar_perfil_expositor.html', context)
+
+@login_required
+def gerenciar_expositores(request, feira_id):
+    feira = get_object_or_404(Feira, pk=feira_id)
+    # Garante que apenas o organizador da feira possa acessá-la
+    if request.user != feira.organizador.usuario:
+        return redirect('inicio') 
+
+    pendentes = feira.expositores_pendentes.all()
+    aprovados = feira.expositores_aprovados.all()
+
+    context = {
+        'feira': feira,
+        'pendentes': pendentes,
+        'aprovados': aprovados,
+    }
+    return render(request, 'core/gerenciar_expositores.html', context)
+
+@login_required
+def aprovar_expositor(request, feira_id, expositor_id):
+    feira = get_object_or_404(Feira, pk=feira_id)
+    expositor = get_object_or_404(Expositor, pk=expositor_id)
+    # Verificação de segurança
+    if request.user == feira.organizador.usuario:
+        feira.expositores_aprovados.add(expositor)
+        feira.expositores_pendentes.remove(expositor)
+        messages.success(request, f'O expositor {expositor.usuario.get_full_name()} foi aprovado.')
+    return redirect('gerenciar_expositores', feira_id=feira.id)
+
+@login_required
+def rejeitar_expositor(request, feira_id, expositor_id):
+    feira = get_object_or_404(Feira, pk=feira_id)
+    expositor = get_object_or_404(Expositor, pk=expositor_id)
+    # Verificação de segurança
+    if request.user == feira.organizador.usuario:
+        feira.expositores_pendentes.remove(expositor)
+        messages.success(request, f'A inscrição do expositor {expositor.usuario.get_full_name()} foi rejeitada.')
+    return redirect('gerenciar_expositores', feira_id=feira.id)

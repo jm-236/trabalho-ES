@@ -34,4 +34,9 @@ urlpatterns = [
     # TElas de edição de perfil
     path('perfil/', views.editar_perfil, name='editar_perfil'),
     path('perfil/expositor/', views.editar_perfil_expositor, name='editar_perfil_expositor'),
+
+    # gerenciamento de expositores
+    path('feira/<int:feira_id>/gerenciar/', views.gerenciar_expositores, name='gerenciar_expositores'),
+    path('feira/<int:feira_id>/aprovar/<int:expositor_id>/', views.aprovar_expositor, name='aprovar_expositor'),
+    path('feira/<int:feira_id>/rejeitar/<int:expositor_id>/', views.rejeitar_expositor, name='rejeitar_expositor'),
 ]

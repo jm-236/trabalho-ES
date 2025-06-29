@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% block title %}Gerenciar Expositores - {{ feira.nome }}{% endblock %}
+
+{% block content %}
+    <h2>Gerenciar Expositores para "{{ feira.nome }}"</h2>
+
+    <h3>Inscrições Pendentes</h3>
+    {% for expositor in pendentes %}
+        <div>
+            <span>{{ expositor.usuario.get_full_name }}</span>
+            <form method="post" action="{% url 'aprovar_expositor' feira.id expositor.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Aprovar</button>
+            </form>
+            <form method="post" action="{% url 'rejeitar_expositor' feira.id expositor.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Rejeitar</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>Nenhuma inscrição pendente no momento.</p>
+    {% endfor %}
+
+    <hr>
+    <h3>Expositores Aprovados</h3>
+    <ul>
+    {% for expositor in aprovados %}
+        <li>{{ expositor.usuario.get_full_name }}</li>
+    {% empty %}
+        <li>Nenhum expositor aprovado ainda.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

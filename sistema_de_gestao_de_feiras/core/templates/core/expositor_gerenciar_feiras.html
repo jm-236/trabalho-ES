@@ -14,9 +14,9 @@
     {% endif %}
 
     <h2>Feiras em que estou participando</h2>
-    {% if minhas_feiras %}
+    {% if feiras_aprovadas %}
         <ul>
-            {% for feira in minhas_feiras %}
+            {% for feira in feiras_aprovadas %}
             <li style="margin-bottom: 10px;">
                 {{ feira.nome }} ({{ feira.localidade }})
                 <form action="{% url 'expositor_gerenciar_feiras' %}" method="post" style="display: inline; margin-left: 20px;">
@@ -34,7 +34,28 @@
 
     <hr style="margin-top: 2em;">
 
-    <h2>Feiras Disponíveis</h2>
+    <h2>Feiras pendentes</h2>
+    {% if feiras_pendentes %}
+        <ul>
+            {% for feira in feiras_pendentes %}
+            <li style="margin-bottom: 10px;">
+                {{ feira.nome }} ({{ feira.localidade }})
+                <form action="{% url 'expositor_gerenciar_feiras' %}" method="post" style="display: inline; margin-left: 20px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="feira_id" value="{{ feira.id }}">
+                    <input type="hidden" name="action" value="remove">
+                    <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;">Sair da feira</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Não há feiras pendentes para você no momento.</p>
+    {% endif %}
+
+    <hr style="margin-top: 2em;">
+
+    <h2>Outras Feiras</h2>
     {% if outras_feiras %}
         <ul>
             {% for feira in outras_feiras %}
