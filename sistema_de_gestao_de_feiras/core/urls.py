@@ -39,4 +39,7 @@ urlpatterns = [
     path('feira/<int:feira_id>/gerenciar/', views.gerenciar_expositores, name='gerenciar_expositores'),
     path('feira/<int:feira_id>/aprovar/<int:expositor_id>/', views.aprovar_expositor, name='aprovar_expositor'),
     path('feira/<int:feira_id>/rejeitar/<int:expositor_id>/', views.rejeitar_expositor, name='rejeitar_expositor'),
+
+    # ingressos
+    path('feira/<int:feira_id>/ingressos/', views.visualizar_ingressos, name='visualizar_ingressos')
 ]

@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+{% block title %}Ingressos Emitidos - {{ feira.nome }}{% endblock %}
+
+{% block content %}
+    <h2>Ingressos Emitidos para "{{ feira.nome }}" (Total: {{ ingressos.count }})</h2>
+    <a href="{% url 'detalhes_feira' feira.id %}">< Voltar para a página da feira</a>
+    <hr>
+
+    {% if ingressos %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Participante</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Email</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Data de Emissão</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ingresso in ingressos %}
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ ingresso.usuario.get_full_name }} ({{ ingresso.usuario.username }})</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ ingresso.usuario.email }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ ingresso.data_emissao|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum ingresso foi emitido para esta feira ainda.</p>
+    {% endif %}
+
+{% endblock %}

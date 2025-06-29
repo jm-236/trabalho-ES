@@ -48,9 +48,14 @@
     {% if user.is_authenticated and user.organizador == feira.organizador %}
     <div style="background-color: #fffbe6; border: 1px solid #ffe58f; padding: 15px; margin: 20px 0; border-radius: 8px;">
         <h4 style="margin-top: 0;">Painel do Organizador</h4>
-        <p>Você é o organizador desta feira. Use o link abaixo para gerenciar as inscrições de expositores.</p>
-        <a href="{% url 'gerenciar_expositores' feira.id %}" style="display: inline-block; background-color: #0056b3; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+        <p>Você é o organizador desta feira. Use os links abaixo para gerenciar seu evento.</p>
+        
+        <a href="{% url 'gerenciar_expositores' feira.id %}" style="display: inline-block; background-color: #0056b3; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
             Gerenciar Expositores
+        </a>
+        
+        <a href="{% url 'visualizar_ingressos' feira.id %}" style="display: inline-block; background-color: #17a2b8; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+            Visualizar Ingressos
         </a>
     </div>
 {% endif %}

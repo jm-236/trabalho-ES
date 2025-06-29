@@ -279,3 +279,25 @@ def rejeitar_expositor(request, feira_id, expositor_id):
         feira.expositores_pendentes.remove(expositor)
         messages.success(request, f'A inscrição do expositor {expositor.usuario.get_full_name()} foi rejeitada.')
     return redirect('gerenciar_expositores', feira_id=feira.id)
+
+@login_required
+def visualizar_ingressos(request, feira_id):
+    feira = get_object_or_404(Feira, pk=feira_id)
+    
+    # Bloco de segurança para garantir que apenas o organizador da feira veja esta página
+    try:
+        if request.user != feira.organizador.usuario:
+            messages.error(request, "Você não tem permissão para ver os ingressos desta feira.")
+            return redirect('inicio')
+    except AttributeError: # Se o related_name 'organizador' não existir para o user
+        messages.error(request, "Apenas organizadores podem acessar esta página.")
+        return redirect('inicio')
+
+    # Busca todos os ingressos associados a esta feira
+    ingressos_emitidos = Ingresso.objects.filter(feira=feira)
+
+    context = {
+        'feira': feira,
+        'ingressos': ingressos_emitidos
+    }
+    return render(request, 'core/visualizar_ingressos.html', context)
